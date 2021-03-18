@@ -16,13 +16,31 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <EditText
-        android:id="@+id/point_term"
-        android:inputType="number"
-        android:layout_width="300dp"
+        android:id="@+id/speed_min"
+        android:layout_width="100dp"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/edit_text" />
+        app:layout_constraintEnd_toStartOf="@id/speed_max"
+        app:layout_constraintTop_toBottomOf="@id/edit_text"/>
+
+    <EditText
+        android:id="@+id/speed_max"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toEndOf="@id/speed_min"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/speed_min"
+        app:layout_constraintBottom_toBottomOf="@id/speed_min"/>
+
+    <Button
+        android:id="@+id/apply_button"
+        android:text="적용"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@id/speed_min"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+
 
     <Button
         android:id="@+id/btn_mock_start"

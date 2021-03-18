@@ -6,15 +6,12 @@ import android.content.Intent
 import android.location.Location
 import android.location.LocationManager
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
 import android.os.SystemClock
 import android.provider.OpenableColumns
 import android.util.Log
 import android.util.Xml
-import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.Job
@@ -25,7 +22,7 @@ import org.xmlpull.v1.XmlPullParser
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.util.ArrayList
+import java.util.*
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -33,6 +30,10 @@ class MainActivity : AppCompatActivity() {
     }
 
     var job: Job? = null
+
+    var minSpeed = 2.5f
+    var maxSpeed = 3.5f
+    var speed = 3f
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,6 +56,24 @@ class MainActivity : AppCompatActivity() {
         btn_mock_stop.setOnClickListener {
             stopMockGps()
             edit_text.setText("Stop")
+        }
+
+        apply_button.setOnClickListener {
+            try {
+                val minSpeed = speed_min.text.toString().toFloat()
+                val maxSpeed = speed_max.text.toString().toFloat()
+
+                if (minSpeed < maxSpeed) {
+                    this.minSpeed = minSpeed / 3.6f
+                    this.maxSpeed = maxSpeed / 3.6f
+                } else {
+                    this.minSpeed = maxSpeed / 3.6f
+                    this.maxSpeed = minSpeed / 3.6f
+                }
+
+            } catch (e: Exception) {
+                Log.d("hyang@e", "${e.message}")
+            }
         }
     }
 
@@ -84,11 +103,7 @@ class MainActivity : AppCompatActivity() {
         println(bearingString)
         println("--")
         var bearing = 0f
-        var term : Long = try {
-            point_term.text.toString().toLong()
-        } catch (e : Exception) {
-            0
-        }
+        var term : Long = 20
         job = GlobalScope.launch {
 
             val locationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
@@ -119,13 +134,26 @@ class MainActivity : AppCompatActivity() {
                         delay(50)
                     }
                 } else {
-                    for (j in 0 until 1000) {
+                    for (j in 0 until 10) {
                         setPLocation(locationManager, "gps", lngLat.lat, lngLat.lng, bearing)
                         setPLocation(locationManager, "network", lngLat.lat, lngLat.lng, bearing)
                         delay(term)
                     }
                 }
 
+                val minX = 0.9f
+                val maxX = 1.1f
+
+                val rand = Random()
+                val finalX = rand.nextFloat() * (maxX - minX) + minX
+                speed *= finalX
+                if (speed < minSpeed) {
+                    speed = minSpeed
+                }
+
+                if (speed > maxSpeed) {
+                    speed = maxSpeed
+                }
 
                 if (i < lngLatList.size - 1) {
                     bearing = getBearing(
@@ -160,7 +188,7 @@ class MainActivity : AppCompatActivity() {
         location.bearing = bearing
         location.accuracy = 1.0f
         location.elapsedRealtimeNanos = SystemClock.elapsedRealtimeNanos()
-        location.speed = 3f
+        location.speed = speed
         locationManager.setTestProviderLocation(provider, location)
     }
 
