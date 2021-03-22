@@ -23,6 +23,9 @@ import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.util.*
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 
 class MainActivity : AppCompatActivity() {
     companion object {
@@ -338,13 +341,17 @@ class MainActivity : AppCompatActivity() {
         return false    // 파일 저장 실패
     }
 
-    private fun getBearing(lat1: Double, lng1: Double, lat2: Double, lng2: Double): Double {
-        val lngDiff = lng2 - lng1
-        val y = Math.sin(lngDiff * Math.cos(lat2))
-        val x =
-            Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(lngDiff)
+    private fun getBearing(lat1: Double, lon1: Double, lat2: Double, lon2: Double): Double {
+        val lat1 = lat1 * Math.PI / 180
+        val lat2 = lat2 * Math.PI / 180
+        val lon1 = lon1 * Math.PI / 180
+        val lon2 = lon2 * Math.PI / 180
+        val y = sin(lon2 - lon1) * cos(lat2)
+        val x = cos(lat1) * sin(lat2) - sin(lat1) * cos(lat2) * cos(lon2 - lon1)
+        val aaa = atan2(y, x); // 방위각 (라디안)
+        val bearing = (aaa * 180 / Math.PI + 360) % 360 // 방위각 (디그리, 정규화 완료)
 
-        return (Math.toDegrees(Math.atan2(y, x)) + 360) % 360;
+        return bearing
     }
 
 }
